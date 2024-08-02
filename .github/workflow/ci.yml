@@ -1,12 +1,13 @@
 name: CI/CD Pipeline
 
-# on:
-#   push:
-#     branches:
-#       - main
-#   pull_request:
-#     branches:
-#       - main
+on:
+  push:
+    branches:
+      - main
+      - feat/payment-submission
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:

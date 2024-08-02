@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - feat/payment-submission
   pull_request:
     branches:
       - main

@@ -18,7 +18,7 @@ describe('Lambda Handler', () => {
     const event = {
       paymentId: '123',
       userId: 'user1',
-      timestamp: '',
+      paymentDate: '',
       description: 'Test payment',
       currency: 'USD',
       amount: 100,
@@ -36,7 +36,7 @@ describe('Lambda Handler', () => {
     const event = {
       paymentId: '123',
       userId: 'user1',
-      timestamp: '2024-08-02T12:00:00Z',
+      paymentDate: '2024-08-02T12:00:00Z',
       description: 'Test payment',
       currency: 'USD',
       amount: 100,
@@ -54,7 +54,7 @@ describe('Lambda Handler', () => {
     const event = {
       paymentId: '123',
       userId: 'user1',
-      timestamp: '2024-08-02T12:00:00Z',
+      paymentDate: '2024-08-02T12:00:00Z',
       description: 'Test payment',
       currency: 'USD',
       amount: 100,

@@ -24,8 +24,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # - name: Run tests
-      #   run: npm test
+      - name: Run tests
+        run: npm test
 
       - name: Install AWS CDK
         run: npm install -g aws-cdk

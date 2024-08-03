@@ -6,6 +6,8 @@ import { Table, AttributeType, BillingMode } from 'aws-cdk-lib/aws-dynamodb';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { LambdaRestApi } from 'aws-cdk-lib/aws-apigateway';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
+import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
+import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
 
 export class BitsAssignmentStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -17,9 +19,16 @@ export class BitsAssignmentStack extends Stack {
       billingMode: BillingMode.PAY_PER_REQUEST,
       removalPolicy: RemovalPolicy.DESTROY,
     });
+    const userPaymentPeriodIndex = 'UserPaymentPeriodIndex';
     paymentTable.addGlobalSecondaryIndex({
-      indexName: 'userId-index',
+      indexName: userPaymentPeriodIndex,
       partitionKey: { name: 'userId', type: AttributeType.STRING },
+      sortKey: { name: 'paymentYearMonth', type: AttributeType.STRING },
+    });
+    const paymentPeriodIndex = 'PaymentPeriodIndex';
+    paymentTable.addGlobalSecondaryIndex({
+      indexName: paymentPeriodIndex,
+      partitionKey: { name: 'paymentYearMonth', type: AttributeType.STRING },
     });
 
     // s3
@@ -42,15 +51,31 @@ export class BitsAssignmentStack extends Stack {
       environment: {
         TABLE_NAME: paymentTable.tableName,
         BUCKET_NAME: reportsBucket.bucketName,
+        USER_PAYMENT_PERIOD_INDEX_NAME: userPaymentPeriodIndex,
+        PAYMENT_PERIOD_INDEX_NAME: paymentPeriodIndex,
       },
     });
 
-    // DB <> Lambda Permission
+    // Cloudwatch
+    const generateMonthlyReportRule = new Rule(this, 'GenerateMonthlyReportRule', {
+      schedule: Schedule.cron({
+        minute: '0',
+        hour: '0',
+        day: '1',
+        month: '*',
+        year: '*',
+      }),
+    });
+
+    // DB <> Lambda
     paymentTable.grantReadWriteData(submitPaymentFunction);
     paymentTable.grantReadData(generateReportFunction);
 
-    // S3 <> Lambda Permission
+    // S3 <> Lambda
     reportsBucket.grantWrite(generateReportFunction);
+
+    // Rule <> Lambda
+    generateMonthlyReportRule.addTarget(new LambdaFunction(generateReportFunction));
 
     // API Gateway
     const submitPaymentApi = new LambdaRestApi(this, 'SubmitPaymentApi', {

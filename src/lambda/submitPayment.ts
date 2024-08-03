@@ -1,17 +1,11 @@
 import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { Handler } from 'aws-lambda';
+import { IPaymentTable } from '../types/paymentTable.interface';
 
 const docClient = new DynamoDBClient();
 const tableName = process.env.TABLE_NAME!;
 
-interface HandlerEvent {
-  paymentId: string;
-  userId: string;
-  paymentDate: string;
-  description: string;
-  currency: string;
-  amount: number;
-}
+interface HandlerEvent extends IPaymentTable {}
 
 export const handler: Handler = async (event: HandlerEvent, context) => {
   try {
@@ -25,12 +19,17 @@ export const handler: Handler = async (event: HandlerEvent, context) => {
       };
     }
 
+    const date = new Date(paymentDate);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const paymentYearMonth = `${year}-${month}`;
     const params = {
       TableName: tableName,
       Item: {
         paymentId: { S: paymentId },
         userId: { S: userId },
         paymentDate: { S: paymentDate },
+        paymentYearMonth: { S: paymentYearMonth },
         description: { S: description },
         currency: { S: currency },
         amount: { N: amount.toString() },

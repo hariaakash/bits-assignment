@@ -1,5 +1,6 @@
 import { mockClient } from 'aws-sdk-client-mock';
 import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
+import { v4 as uuidv4 } from 'uuid';
 import { handler } from '../src/lambda/submitPayment';
 
 process.env.TABLE_NAME = 'TestTable';
@@ -16,9 +17,9 @@ describe('Lambda Handler', () => {
     ddbMock.on(PutItemCommand).resolves({});
 
     const event = {
-      paymentId: '123',
-      userId: 'user1',
-      timestamp: '',
+      paymentId: uuidv4(),
+      userId: uuidv4(),
+      paymentDate: '',
       description: 'Test payment',
       currency: 'USD',
       amount: 100,
@@ -34,9 +35,9 @@ describe('Lambda Handler', () => {
     ddbMock.on(PutItemCommand).resolves({});
 
     const event = {
-      paymentId: '123',
-      userId: 'user1',
-      timestamp: '2024-08-02T12:00:00Z',
+      paymentId: uuidv4(),
+      userId: uuidv4(),
+      paymentDate: '2024-08-02T12:00:00Z',
       description: 'Test payment',
       currency: 'USD',
       amount: 100,
@@ -52,9 +53,9 @@ describe('Lambda Handler', () => {
     ddbMock.on(PutItemCommand).rejects('DynamoDB error');
 
     const event = {
-      paymentId: '123',
-      userId: 'user1',
-      timestamp: '2024-08-02T12:00:00Z',
+      paymentId: uuidv4(),
+      userId: uuidv4(),
+      paymentDate: '2024-08-02T12:00:00Z',
       description: 'Test payment',
       currency: 'USD',
       amount: 100,

@@ -1,0 +1,15 @@
+graph TD
+    A[Client] -->|HTTP Request| B(API Gateway)
+    B -->|Invoke| C[Submit Payment Lambda]
+    C -->|Write| D[(DynamoDB - Payment Table)]
+    E[CloudWatch Event Rule] -->|Trigger Monthly| F[Generate Report Lambda]
+    F -->|Read| D
+    F -->|Write| G[S3 Bucket - Reports]
+
+    subgraph "DynamoDB Indexes"
+        H[UserPaymentPeriodIndex]
+        I[PaymentPeriodIndex]
+    end
+
+    D --- H
+    D --- I

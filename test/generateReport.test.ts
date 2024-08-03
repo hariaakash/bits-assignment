@@ -1,6 +1,7 @@
 import { mockClient } from 'aws-sdk-client-mock';
 import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { v4 as uuidv4 } from 'uuid';
 import { handler } from '../src/lambda/generateReport';
 
 process.env.TABLE_NAME = 'TestTable';
@@ -22,7 +23,7 @@ describe('Lambda Handler', () => {
     ddbMock.on(QueryCommand).resolves({ Items: [] });
 
     const event = {
-      userId: 'user1',
+      userId: uuidv4(),
       year: '2024',
       month: '08',
     };
@@ -36,14 +37,14 @@ describe('Lambda Handler', () => {
   test('should return 200 and generate reports if items are found', async () => {
     ddbMock.on(QueryCommand).resolves({
       Items: [
-        { userId: { S: 'user1' }, paymentDate: { S: '2024-08-01' }, amount: { N: '100' } },
-        { userId: { S: 'user1' }, paymentDate: { S: '2024-08-02' }, amount: { N: '150' } },
+        { userId: { S: uuidv4() }, paymentDate: { S: '2024-08-01' }, amount: { N: '100' } },
+        { userId: { S: uuidv4() }, paymentDate: { S: '2024-08-02' }, amount: { N: '150' } },
       ],
     });
     s3Mock.on(PutObjectCommand).resolves({});
 
     const event = {
-      userId: 'user1',
+      userId: uuidv4(),
       year: '2024',
       month: '08',
     };
@@ -58,7 +59,7 @@ describe('Lambda Handler', () => {
     ddbMock.on(QueryCommand).resolves({ Items: [] });
 
     const event = {
-      userId: 'user1',
+      userId: uuidv4(),
       year: '',
       month: '',
     };
@@ -73,7 +74,7 @@ describe('Lambda Handler', () => {
     ddbMock.on(QueryCommand).rejects('DynamoDB error');
 
     const event = {
-      userId: 'user1',
+      userId: uuidv4(),
       year: '2024',
       month: '08',
     };

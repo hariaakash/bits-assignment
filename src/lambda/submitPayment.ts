@@ -1,5 +1,6 @@
 import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { Handler } from 'aws-lambda';
+import { v4 as uuidv4 } from 'uuid';
 import { IPaymentTable } from '../types/paymentTable.interface';
 
 const docClient = new DynamoDBClient();
@@ -9,7 +10,7 @@ interface HandlerEvent extends IPaymentTable {}
 
 export const handler: Handler = async (event: HandlerEvent, context) => {
   try {
-    const { paymentId = null, userId = null, paymentDate = null, description = null, currency = null, amount = null } = event;
+    const { paymentId = uuidv4(), userId = null, paymentDate = null, description = null, currency = null, amount = null } = event;
 
     const isParamsAvailable = paymentId && userId && paymentDate && description && currency && amount;
     if (!isParamsAvailable) {
